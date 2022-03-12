@@ -1,10 +1,10 @@
 {
   "name": "@aviruk/jshp",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "JavaScript Hypertext Preprocessor - Inspired by PHP, in JavaScript",
-  "main": "./prod/index.js",
+  "main": "./build/index.js",
   "bin": {
-    "jshp": "./prod/index.js"
+    "jshp": "./build/index.js"
   },
   "engines": {
     "node": ">=11.7.0",
