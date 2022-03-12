@@ -1,0 +1,17 @@
+name: Publish NPM Package
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get repository from repo server to runner
+        uses: actions/checkout@v2
+      - name: NPM Publish
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_AUTOMATION_TOKEN }}
+          access: public

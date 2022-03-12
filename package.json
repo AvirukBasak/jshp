@@ -1,0 +1,46 @@
+{
+  "name": "@aviruk/jshp",
+  "version": "0.0.1",
+  "description": "JavaScript Hypertext Preprocessor - Inspired by PHP, in JavaScript",
+  "main": "./prod/index.js",
+  "bin": {
+    "jshp": "./prod/index.js"
+  },
+  "engines": {
+    "node": ">=11.7.0",
+    "npm": ">=6.5.0"
+  },
+  "scripts": {
+    "build": "tsc && echo Exited with code $?",
+    "start": "node ./prod/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AvirukBasak/JSHP.git"
+  },
+  "keywords": [
+    "JSHP",
+    "JHP",
+    "JavaScript",
+    "Hypertext",
+    "Preprocessor"
+  ],
+  "author": "AvirukBasak",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AvirukBasak/JSHP/issues"
+  },
+  "homepage": "https://github.com/AvirukBasak/JSHP#readme",
+  "dependencies": {
+    "node-static": "^0.7.11",
+    "nodejs-info": "^1.2.1",
+    "source-map-support": "^0.5.21"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.26",
+    "@types/node-static": "^0.7.7",
+    "@types/source-map-support": "^0.5.4",
+    "ts-node": "^10.4.0"
+  }
+}

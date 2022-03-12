@@ -1,0 +1,13 @@
+export const EINVLOPT: number     =  1; // invalid option
+export const ENOARG: number       =  2; // no arguments provided
+export const EINVLARG: number     =  3; // invalid argument
+export const ENSPCFDPORT: number  =  4; // serve: unspecified port
+export const ENSPCFDPATH: number  =  5; // serve: unspecified path
+export const EPISNTDIR: number    =  6; // serve: path isn\'t a directory
+export const ELOGRFAIL: number    =  7; // failed to open logfile
+export const EINVLMSGFN: number   =  8; // invalid message function
+export const EINVLCONF: number    =  9; // invalid config data
+export const EFOPEN: number       = 10; // failed to open file
+export const ELOADMAP: number     = 11; // couldn't load srcMapping
+export const ECOMPILFAIL: number  = 12; // compilation fail
+export const EGENFAIL: number     = 13; // general failure
