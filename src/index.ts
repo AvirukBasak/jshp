@@ -28,6 +28,11 @@ const validateAndCleanResRoot = function(resRoot: string): string {
         console.error('jshp: unspecified path');
         process.exit(ErrCodes.ENSPCFDPATH);
     }
+    if (resRoot === '.' || resRoot === './') {
+        const basename = path.basename(process.cwd());
+        process.chdir('../');
+        resRoot = basename;
+    }
     if (!fs.lstatSync(resRoot).isDirectory()) {
         console.error('jshp: path isn\'t a directory');
         process.exit(ErrCodes.EPISNTDIR);
