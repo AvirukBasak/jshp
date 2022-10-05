@@ -28,6 +28,11 @@ const validateAndCleanResRoot = function(resRoot: string): string {
         console.error('jshp: unspecified path');
         process.exit(ErrCodes.ENSPCFDPATH);
     }
+    if (resRoot === '.' || resRoot === './') {
+        const basename = path.basename(process.cwd());
+        process.chdir('../');
+        resRoot = basename;
+    }
     if (!fs.lstatSync(resRoot).isDirectory()) {
         console.error('jshp: path isn\'t a directory');
         process.exit(ErrCodes.EPISNTDIR);
@@ -63,7 +68,7 @@ const runInCLI = function(args: string[]) {
     else if ([ 'i', 'init' ].includes(args[2])) {
 
         if (!args[3]) {
-            console.error('jshp: compile: no arguments provided\n'
+            console.error('jshp: init: no arguments provided\n'
                 + '    try using \'help\' option');
             process.exit(ErrCodes.ENOARG);
         }

@@ -1,10 +1,10 @@
 {
   "name": "@aviruk/jshp",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "JavaScript Hypertext Preprocessor - Inspired by PHP, in JavaScript",
   "main": "./build/index.js",
   "bin": {
-    "jshp": "./build/index.js"
+    "jshp": "build/index.js"
   },
   "engines": {
     "node": ">=11.7.0",
@@ -12,7 +12,7 @@
   },
   "scripts": {
     "build": "tsc && echo Exited with code $?",
-    "start": "node ./prod/index.js",
+    "start": "node ./build/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -42,5 +42,8 @@
     "@types/node-static": "^0.7.7",
     "@types/source-map-support": "^0.5.4",
     "ts-node": "^10.4.0"
+  },
+  "directories": {
+    "doc": "docs"
   }
 }

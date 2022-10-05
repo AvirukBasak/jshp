@@ -285,7 +285,6 @@ export const start = function(config: NodeJS.Dict<any>) {
 
     // loadFile value is passed false as file was already loaded in index.ts
     reloadConfig(false);
-
     const server: http.Server = http.createServer(serverCallback);
     if (Host)
         server.listen(Port, Host, listenerCallback);
