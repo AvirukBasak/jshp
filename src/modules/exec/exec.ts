@@ -494,54 +494,28 @@ const Server = {
 Server;
 
 /**
- * Runs JavaScript code within JSHP tags.
+ * An alternative to JS require by default imports module from the $_RES_ROOT
+ * @param {string} modPath The path to module
+ * @return {module}
  */
-(async function() {
-
-    // stores executable code path
-    let codePath: string = '';
-
-    // stores executable code
-    let execCode: string = '';
-
-    // get raw code for hot compilation, return on failure
-    if ($_CONFIG.hotCompile) try {
-        execCode = String(FS.readFileSync($_REQUEST.path));
-        try {
-            await Server.fileCompile($_REQUEST.path);
-            codePath = $_CONFIG.srcMapping[$_SERVER['REQUEST_URI']];
-            execCode = String(FS.readFileSync(codePath));
-        } catch (error) {
-            Message.error('exec: hotCompile: jshp file error\n'
-                + CleanMsg.runtimeError(String((error as Error).stack), $_REQUEST.url || ''));
-            return;
+const prequire = function(codePath: string): any {
+    let exports: any = {};
+    if (codePath.startsWith('jshp::')
+        || codePath.startsWith('js:')
+        || codePath.startsWith('./')) try {
+        if (codePath.startsWith('jshp::'))
+            codePath = codePath.substring(6);
+        else {
+            if (codePath.startsWith('js:')) {
+                codePath = codePath.substring(3);
+                if (!codePath.endsWith('.js'))
+                    codePath += '.js';
+            } else codePath = codePath.substring(2);
+            codePath = PATH.join($_RES_ROOT, codePath);
         }
-    } catch (error) {
-        Message.error((error as Error).stack || '');
-        return;
-    }
-
-    // try to get executable code otherwise
-    if (!$_CONFIG.hotCompile) try {
-        codePath = $_CONFIG.srcMapping[$_SERVER['REQUEST_URI']];
-        execCode = String(FS.readFileSync(codePath));
-    } catch (error) {
-        try {
-            // fallback to raw code if compiled code not found
-            Logger.warn('fallback to ' + $_REQUEST.path);
-            await Server.fileCompile($_REQUEST.path);
-            codePath = $_CONFIG.srcMapping[$_SERVER['REQUEST_URI']];
-            execCode = String(FS.readFileSync(codePath));
-        } catch (error) {
-            Message.error('exec: fallback compile: jshp file error\n'
-                + CleanMsg.runtimeError(String((error as Error).stack), $_REQUEST.url || ''));
-            return;
-        }
-    }
-
-    try {
-        // execute code
+        const execCode = String(FS.readFileSync(codePath));
         eval(execCode);
+        return exports;
     } catch (error) {
         /* on syntax error, require the path, which will throw the syntax
          * error and allow it to be traceable.
@@ -564,9 +538,58 @@ Server;
 
             Message.error('exec: eval: jshp file error\n'
                 + stackTrace);
-            return;
+            return {};
         }
         Message.error('exec: eval: jshp file error\n'
             + CleanMsg.runtimeError(String((error as Error).stack), $_REQUEST.url || ''));
+        return {};
     }
+    else return require(codePath);
+}
+prequire;
+
+/**
+ * Runs JavaScript code within JSHP tags.
+ */
+(async function() {
+
+    // stores executable code path
+    let codePath: string = '';
+
+    // get raw code for hot compilation, return on failure
+    if ($_CONFIG.hotCompile) try {
+        codePath = $_REQUEST.path;
+        if (!FS.existsSync(codePath)) throw 'ENOENT: no such file or directory: ' + codePath;
+        try {
+            await Server.fileCompile($_REQUEST.path);
+            codePath = $_CONFIG.srcMapping[$_SERVER['REQUEST_URI']];
+            if (!FS.existsSync(codePath)) throw 'ENOENT: no such file or directory: ' + codePath;
+        } catch (error) {
+            Message.error('exec: hotCompile: jshp file error\n'
+                + CleanMsg.runtimeError(String((error as Error).stack), $_REQUEST.url || ''));
+            return;
+        }
+    } catch (error) {
+        Message.error((error as Error).stack || '');
+        return;
+    }
+
+    // try to get executable code otherwise
+    if (!$_CONFIG.hotCompile) try {
+        codePath = $_CONFIG.srcMapping[$_SERVER['REQUEST_URI']];
+        if (!FS.existsSync(codePath)) throw 'ENOENT: no such file or directory: ' + codePath;
+    } catch (error) {
+        try {
+            // fallback to raw code if compiled code not found
+            Logger.warn('fallback to ' + $_REQUEST.path);
+            await Server.fileCompile($_REQUEST.path);
+            codePath = $_CONFIG.srcMapping[$_SERVER['REQUEST_URI']];
+            if (!FS.existsSync(codePath)) throw 'ENOENT: no such file or directory: ' + codePath;
+        } catch (error) {
+            Message.error('exec: fallback compile: jshp file error\n'
+                + CleanMsg.runtimeError(String((error as Error).stack), $_REQUEST.url || ''));
+            return;
+        }
+    }
+    prequire('jshp::' + codePath);
 })();
