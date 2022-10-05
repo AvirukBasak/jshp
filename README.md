@@ -37,9 +37,10 @@ Visit [JSHP-App](https://github.com/AvirukBasak/JSHP-App) to view the demo proje
 8. [Global variables](#global-variables)
 9. [Functions](#functions)
 10. [Special functions](#special-functions)
-11. [Async and await](#async-and-await)
-11. [Module variables](#module-variables)
-12. [Security bug 1](#security-bug-1)
+11. [Importing modules](#importing-modules)
+12. [Async and await](#async-and-await)
+13. [Module variables](#module-variables)
+14. [Security bug 1](#security-bug-1)
 
 ## Requirements
 - NodeJS `>= 11.7.0`
@@ -575,12 +576,14 @@ For `jshp` files, `require` will not work. `require` will attempt to load module
 To load modules relative to the server resources root, a specialised function `prequire` is provided.
 
 Syntax
-```
-const mod = prequire('prebuilt-node-module');
-const mod1 = prequire('js:my-dir/my-module');
-const mod2 = prequire('./my-dir/my-module.js');
-m1.foo();
-m2.foo();
+```HTML
+<script jshp>
+    const mod = prequire('prebuilt-node-module');
+    const mod1 = prequire('js:my-dir/my-module');
+    const mod2 = prequire('./my-dir/my-module.js');
+    m1.foo();
+    m2.foo();
+</script>
 ```
 
 ## Async and await

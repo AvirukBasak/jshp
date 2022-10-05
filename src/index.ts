@@ -68,7 +68,7 @@ const runInCLI = function(args: string[]) {
     else if ([ 'i', 'init' ].includes(args[2])) {
 
         if (!args[3]) {
-            console.error('jshp: compile: no arguments provided\n'
+            console.error('jshp: init: no arguments provided\n'
                 + '    try using \'help\' option');
             process.exit(ErrCodes.ENOARG);
         }
