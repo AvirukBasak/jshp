@@ -561,6 +561,7 @@ It is generated when JSHP code is compiled.
 - **ResponseCode.getMessage(number)** - Get status messages of a response code.
 
 ## Special functions
+- **prequire(path)** - Loads a module for the `jshp` file.
 - **nodejsinfo()** - Displays some server information.
 - **jshpinfo()** - Same as `nodejsinfo`.
 - **getStatusCode()** - Get status code of current page.
@@ -568,6 +569,19 @@ It is generated when JSHP code is compiled.
 - **Server.fileCompile(path)** - Selectively recompile a file.
 - **Server.recompile()** - Re-run compilation to include source code changes
 - **Server.putResHash(algorithm)** - Writes hash of response to header `x-response-hash`, algorithm is `md5` by default.
+
+## Importing modules
+For `jshp` files, `require` will not work. `require` will attempt to load modules relative to directory of the executable.
+To load modules relative to the server resources root, a specialised function `prequire` is provided.
+
+Syntax
+```
+const mod = prequire('prebuilt-node-module');
+const mod1 = prequire('js:my-dir/my-module');
+const mod2 = prequire('./my-dir/my-module.js');
+m1.foo();
+m2.foo();
+```
 
 ## Async and await
 Note that certain functions return promises. They are
