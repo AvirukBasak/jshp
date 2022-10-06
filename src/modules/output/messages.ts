@@ -41,7 +41,6 @@ const generateHTMLMsg = function(str: string, color: string = 'dodgerblue'): str
     );
 }
 
-
 /**
  * Functions to clean up error messages.
  */
@@ -54,7 +53,8 @@ export const CleanMsg: NodeJS.Dict<any> = {
     runtimeError: function(str: string, url: string): string {
         return str.replace(new RegExp(process.cwd() + '/', 'g'), '')
                   .replace(/^ {4}at.*eval.*(:\d+:\d+).*(\n)?/gm, '    at jshp file (' + url.split('?')[0] + '$1)$2')
-                  .replace(/^ {4}at( .*)? [^(jshp file)]*.*\/(.*)\.js(:\d+:\d+).*(\n)?/gm, '    at$1 (jshp:$2$3)$4');
+                  .replace(/^ {4}(((?!at jshp file).)*) \(\/.*\/(.*?)\.js(:\d+:\d+)\)/gm, '    $1 (jshp:$3$4)')
+                  .replace(/^ {4}at \/.*\/(.*?)\.js(:\d+:\d+)/gm, '    at <anonymous> (jshp:$1$2)');
     },
 
     /**
