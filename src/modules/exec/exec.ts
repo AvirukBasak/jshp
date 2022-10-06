@@ -518,7 +518,7 @@ const prequire = function(codePath: string): any {
     let exports: any = {};
     if (codePath.startsWith('eval::')
         || codePath.startsWith('js:')
-        || codePath.startsWith('./')) try {
+        || codePath.startsWith('/')) try {
         if (codePath.startsWith('eval::'))
             codePath = codePath.substring(6);
         else {
@@ -526,7 +526,7 @@ const prequire = function(codePath: string): any {
                 codePath = codePath.substring(3);
                 if (!codePath.endsWith('.js'))
                     codePath += '.js';
-            } else codePath = codePath.substring(2);
+            }
             codePath = PATH.join($_RES_ROOT, codePath);
         }
         const execCode = String(FS.readFileSync(codePath));

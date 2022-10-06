@@ -59,6 +59,7 @@ export const CleanMsg: NodeJS.Dict<any> = {
                   .replace(/\$DOT\$/gm, '.')
                   .replace(/^ {4}(((?!at jshp file).)*) \(\/.*\/(.*?)\.js(:\d+:\d+)\)/gm, '    $1 (jshp:$3$4)')
                   .replace(/^ {4}at \/.*\/(.*?)\.js(:\d+:\d+)/gm, '    at <anonymous> (jshp:$1$2)')
+                  .replace(/^- \/.*\/(.*?)\.js(\n)/gm, '    at jshp:$1$2');
     },
 
     /**
