@@ -581,10 +581,18 @@ Syntax
     const mod = prequire('prebuilt-node-module');
     const mod1 = prequire('js:my-dir/my-module');
     const mod2 = prequire('./my-dir/my-module.js');
+    const mod3 = prequire('jshp:my-dir/my-jshp-file.jshp.html');
     m1.foo();
     m2.foo();
+    m3.loadMyContents();
 </script>
 ```
+
+Note that the `js:` prefix is optional for loading JavaScript files.
+
+But the `jshp:` prefix is absolutely necessary if another `jshp` file is to be loaded.
+
+Otherwise the server will attempt to run that `jshp` file as JavaScript, and crash and burn.
 
 ## Async and await
 Note that certain functions return promises. They are
