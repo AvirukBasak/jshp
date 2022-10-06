@@ -580,13 +580,15 @@ Syntax
 <script jshp>
     const mod = prequire('prebuilt-node-module');
     const mod1 = prequire('js:my-dir/my-module');
-    const mod2 = prequire('./my-dir/my-module.js');
+    const mod2 = prequire('/my-dir/my-module.js');
     const mod3 = prequire('jshp:my-dir/my-jshp-file.jshp.html');
     m1.foo();
     m2.foo();
     m3.loadMyContents();
 </script>
 ```
+
+Note that paths to prequire (starting with `js:`, `jshp:` and `/`) are evaluated relative to `$_RES_ROOT`.
 
 Note that the `js:` prefix is optional for loading JavaScript files.
 
