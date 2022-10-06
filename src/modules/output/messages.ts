@@ -51,10 +51,14 @@ export const CleanMsg: NodeJS.Dict<any> = {
      * @param {string} str The string to be cleaned
      */
     runtimeError: function(str: string, url: string): string {
+        url;
         return str.replace(new RegExp(process.cwd() + '/', 'g'), '')
-                  .replace(/^ {4}at.*eval.*(:\d+:\d+).*(\n)?/gm, '    at jshp file (' + url.split('?')[0] + '$1)$2')
+                  .replace(/^ {4}at eval.*\n/gm, '')
+                  .replace(/\(eval.*anonymous>/gm, '(<anonymous>')
+                  .replace(/\$SLASH\$/gm, '/')
+                  .replace(/\$DOT\$/gm, '.')
                   .replace(/^ {4}(((?!at jshp file).)*) \(\/.*\/(.*?)\.js(:\d+:\d+)\)/gm, '    $1 (jshp:$3$4)')
-                  .replace(/^ {4}at \/.*\/(.*?)\.js(:\d+:\d+)/gm, '    at <anonymous> (jshp:$1$2)');
+                  .replace(/^ {4}at \/.*\/(.*?)\.js(:\d+:\d+)/gm, '    at <anonymous> (jshp:$1$2)')
     },
 
     /**
