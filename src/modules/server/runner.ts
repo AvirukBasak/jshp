@@ -202,7 +202,7 @@ export const startExec = function(req: HTTPRequest, res: http.ServerResponse) {
                         Logs.error(req, res, errorMsg);
                         responseBody += MsgBox.error(CleanMsg.runtimeError(errorMsg, req.url || ''));
                     } else try {
-                        PreCompiler.preCompile(Config);
+                        PreCompiler.fileCompile(Config, message.path);
                         Logs.warn(req, res, 'runner: recompiled ' + message.path, false);
                     } catch (error) {
                         res.statusCode = 500;
