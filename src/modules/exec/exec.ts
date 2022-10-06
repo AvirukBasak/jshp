@@ -107,7 +107,7 @@ $_SESSION;
  * Gets status code of current page
  * @return {number}
  */
-const getStatusCode = function(): Promise<any> {
+const getStatusCode = function(): Promise<number> {
     WorkerThreads.parentPort?.postMessage({
         func: 'getStatusCode',
     });
@@ -493,6 +493,22 @@ const Server = {
 }
 Server;
 
+const __fallback_rawcode = async function(callerFn: string, codePath: string, fbPath: string, fbflag: boolean = true): Promise<string> {
+    let execCodePath: string = '';
+    try {
+        await Server.fileCompile(fbPath);
+        execCodePath = $_CONFIG.srcMapping[codePath];
+        if (!FS.existsSync(execCodePath)) throw 'ENOENT: no such file or directory: ' + execCodePath;
+        fbflag && Logger.warn(callerFn + ': fallback to ' + codePath);
+    } catch (error) {
+        Message.error('exec: ' + callerFn + ': jshp file error\n'
+            + CleanMsg.runtimeError(String((error as Error).stack), fbPath + '?' || ''));
+    }
+    return execCodePath;
+}
+
+const __prequire_stack: string[] = [];
+
 /**
  * An alternative to JS require by default imports module from the $_RES_ROOT
  * @param {string} modPath The path to module
@@ -500,10 +516,10 @@ Server;
  */
 const prequire = function(codePath: string): any {
     let exports: any = {};
-    if (codePath.startsWith('jshp::')
+    if (codePath.startsWith('eval::')
         || codePath.startsWith('js:')
         || codePath.startsWith('./')) try {
-        if (codePath.startsWith('jshp::'))
+        if (codePath.startsWith('eval::'))
             codePath = codePath.substring(6);
         else {
             if (codePath.startsWith('js:')) {
@@ -514,7 +530,9 @@ const prequire = function(codePath: string): any {
             codePath = PATH.join($_RES_ROOT, codePath);
         }
         const execCode = String(FS.readFileSync(codePath));
+        __prequire_stack.push(codePath);
         eval(execCode);
+        __prequire_stack.pop();
         return exports;
     } catch (error) {
         /* on syntax error, require the path, which will throw the syntax
@@ -522,8 +540,9 @@ const prequire = function(codePath: string): any {
          * Then catch the error, and through some string manipulation, create
          * a user-friendly error message.
          */
-        const absCodePath: string = PATH.resolve(codePath);
-        if (codePath && error instanceof SyntaxError) try {
+        const failedCodePath: string = __prequire_stack[__prequire_stack.length -1];
+        const absCodePath: string = PATH.resolve(failedCodePath);
+        if (failedCodePath && error instanceof SyntaxError) try {
             require(absCodePath);
         } catch (e) {
             const error: any = e as any;
@@ -531,20 +550,29 @@ const prequire = function(codePath: string): any {
             let cutoffIndex: number = stackTrace.indexOf('\n    at');
             if (cutoffIndex < 0)
                 cutoffIndex = error.stack.length;
-            stackTrace = stackTrace.substring(0, cutoffIndex)
-
+            stackTrace = stackTrace.substring(0, cutoffIndex);
             // replaces certain character with certain others
-            stackTrace = CleanMsg.syntaxError(stackTrace, { absCodePath, uri: $_SERVER['REQUEST_URI'] });
-
-            Message.error('exec: eval: jshp file error\n'
-                + stackTrace);
-            return {};
+            stackTrace = CleanMsg.syntaxError(stackTrace, { absCodePath, uri: failedCodePath });
+            Message.error('exec: eval: jshp file error\n' + stackTrace);
+            return exports;
         }
         Message.error('exec: eval: jshp file error\n'
-            + CleanMsg.runtimeError(String((error as Error).stack), $_REQUEST.url || ''));
-        return {};
-    }
-    else return require(codePath);
+            + CleanMsg.runtimeError(String((error as Error).stack), failedCodePath + '?' || ''));
+        return exports;
+    } else if (codePath.startsWith('jshp:')) {
+        const jshpModURI = '/' + codePath.substring(5);
+        const jshpModPath = PATH.join($_RES_ROOT, jshpModURI);
+        try {
+            const execCodePath = $_CONFIG.srcMapping[jshpModURI];
+            if (!FS.existsSync(execCodePath)) throw 'ENOENT: no such file or directory: ' + execCodePath;
+            eval(String(FS.readFileSync(execCodePath)));
+        } catch (error) {
+            __fallback_rawcode('fallback compile', jshpModURI, jshpModPath);
+            Message.warn('fallback compile: fallback to ' + jshpModURI
+                + '\n    reload to load the jshp file');
+            return exports;
+        }
+    } else return require(codePath);
 }
 prequire;
 
@@ -560,17 +588,10 @@ prequire;
     if ($_CONFIG.hotCompile) try {
         codePath = $_REQUEST.path;
         if (!FS.existsSync(codePath)) throw 'ENOENT: no such file or directory: ' + codePath;
-        try {
-            await Server.fileCompile($_REQUEST.path);
-            codePath = $_CONFIG.srcMapping[$_SERVER['REQUEST_URI']];
-            if (!FS.existsSync(codePath)) throw 'ENOENT: no such file or directory: ' + codePath;
-        } catch (error) {
-            Message.error('exec: hotCompile: jshp file error\n'
-                + CleanMsg.runtimeError(String((error as Error).stack), $_REQUEST.url || ''));
-            return;
-        }
+        codePath = await __fallback_rawcode('hotCompile', $_SERVER['REQUEST_URI'], $_REQUEST.path, false);
+        if (codePath === '') throw 'ENOENT: no such file or directory: ' + $_SERVER['REQUEST_URI'];
     } catch (error) {
-        Message.error((error as Error).stack || '');
+        Message.error((error as Error).stack || (error as Error).toString() || '');
         return;
     }
 
@@ -579,17 +600,8 @@ prequire;
         codePath = $_CONFIG.srcMapping[$_SERVER['REQUEST_URI']];
         if (!FS.existsSync(codePath)) throw 'ENOENT: no such file or directory: ' + codePath;
     } catch (error) {
-        try {
-            // fallback to raw code if compiled code not found
-            Logger.warn('fallback to ' + $_REQUEST.path);
-            await Server.fileCompile($_REQUEST.path);
-            codePath = $_CONFIG.srcMapping[$_SERVER['REQUEST_URI']];
-            if (!FS.existsSync(codePath)) throw 'ENOENT: no such file or directory: ' + codePath;
-        } catch (error) {
-            Message.error('exec: fallback compile: jshp file error\n'
-                + CleanMsg.runtimeError(String((error as Error).stack), $_REQUEST.url || ''));
-            return;
-        }
+        codePath = await __fallback_rawcode('fallback compile', $_SERVER['REQUEST_URI'], $_REQUEST.path);
+        if (codePath === '') throw 'ENOENT: no such file or directory: ' + $_SERVER['REQUEST_URI'];
     }
-    prequire('jshp::' + codePath);
+    prequire('eval::' + codePath);
 })();

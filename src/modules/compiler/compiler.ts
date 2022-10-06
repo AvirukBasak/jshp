@@ -37,6 +37,26 @@ export const ComplementTagCode: NodeJS.Dict<any> = {
 }
 
 /**
+ * If path is Public/chats/index.jshp.html, return value will be Public$SL$ASHchats$SLASH$index$DOT$jshp$DOT$html
+ * @param {string} path
+ * @return {string}
+ */
+export const getFnNameFromPath = function(path: string): string {
+    return path.replace(/\//gm, '\$SLASH\$')
+               .replace(/\./gm, '\$DOT\$');
+}
+
+/**
+ * If fnName is Public$SL$ASHchats$SLASH$index$DOT$jshp$DOT$html, returned path will be Public/chats/index.jshp.html
+ * @param {string} path
+ * @return {string}
+ */
+export const getPathFromFnName = function(fnName: string): string {
+    return fnName.replace(/\$SLASH\$/gm, '/')
+                .replace(/\$DOT\$/gm, '.');
+}
+
+/**
  * Compiles JSHP file into executable JavaScript.
  * Doing so reduces precious parsing time when responding to requests.
  * Warnings get printed immediately, errors are thrown.
@@ -45,7 +65,7 @@ export const ComplementTagCode: NodeJS.Dict<any> = {
  * @return {string} Executable JavaScript code, can be passed directly to eval.
  * @throws {SyntaxError} Error messages during compilation.
  */
-export const compile = function(jshpCode: string, filePath?: string): string {
+export const compile = function(jshpCode: string, filePath: string): string {
 
     const compilerWarnings: string[] = [];
     const compilerErrors: string[] = [];
@@ -171,5 +191,6 @@ export const compile = function(jshpCode: string, filePath?: string): string {
     if (compilerErrors.length > 0)
         throw new SyntaxError(reportErrors);
 
-    return '(async function() { ' + execBuffer + '`); })();';
+    const fnName = getFnNameFromPath(filePath);
+    return 'const ' + fnName + ' = async function() { ' + execBuffer + '`); }; ' + fnName + '();';
 }
