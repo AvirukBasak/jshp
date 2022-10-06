@@ -181,10 +181,10 @@ export const startExec = function(req: HTTPRequest, res: http.ServerResponse) {
                 } catch (error) {
                     res.statusCode = 500;
                     const errorMsg: string = 'runner: Server.reloadConfig: reload failed\n'
-                        + error + '\n'
-                        + 'fallback to previous config data';
+                        + CleanMsg.runtimeError((error as Error).stack || String(error), req.url || '')
+                        + '\nfallback to previous config data';
                     Logs.error(req, res, errorMsg);
-                    responseBody += MsgBox.error(CleanMsg.runtimeError(errorMsg, req.url || ''));
+                    responseBody += MsgBox.error(errorMsg);
                     Config = configBackup;
                 }
                 worker.postMessage({
@@ -200,23 +200,23 @@ export const startExec = function(req: HTTPRequest, res: http.ServerResponse) {
                     if (fs.lstatSync(message.path).isDirectory()) {
                         const errorMsg: string = 'runner: Server.fileCompile: specified path is a directory';
                         Logs.error(req, res, errorMsg);
-                        responseBody += MsgBox.error(CleanMsg.runtimeError(errorMsg, req.url || ''));
+                        responseBody += MsgBox.error(errorMsg);
                     } else try {
                         PreCompiler.fileCompile(Config, message.path);
                         Logs.warn(req, res, 'runner: recompiled ' + message.path, false);
                     } catch (error) {
                         res.statusCode = 500;
-                        const errorMsg: string = 'runner: Server.recompile: jshp file error\n'
-                            + error;
+                        const errorMsg: string = 'runner: Server.fileCompile: jshp file error\n'
+                            + CleanMsg.runtimeError((error as Error).stack || String(error), req.url || '');
                         Logs.error(req, res, errorMsg);
-                        responseBody += MsgBox.error(CleanMsg.runtimeError(errorMsg, req.url || ''));
+                        responseBody += MsgBox.error(errorMsg);
                     }
                 } catch (error) {
                     res.statusCode = 500;
-                    const errorMsg: string = 'runner: Server.recompile: compilation failed\n'
-                        + error;
+                    const errorMsg: string = 'runner: Server.fileCompile: compilation failed\n'
+                        + CleanMsg.runtimeError((error as Error).stack || String(error), req.url || '');
                     Logs.error(req, res, errorMsg);
-                    responseBody += MsgBox.error(CleanMsg.runtimeError(errorMsg, req.url || ''));
+                    responseBody += MsgBox.error(errorMsg);
                 }
                 worker.postMessage({
                     func: 'Server.fileCompile',
@@ -231,9 +231,9 @@ export const startExec = function(req: HTTPRequest, res: http.ServerResponse) {
                 } catch (error) {
                     res.statusCode = 500;
                     const errorMsg: string = 'runner: Server.recompile: jshp file error\n'
-                        + error;
+                        + CleanMsg.runtimeError((error as Error).stack || String(error), req.url || '');
                     Logs.error(req, res, errorMsg);
-                    responseBody += MsgBox.error(CleanMsg.runtimeError(errorMsg, req.url || ''));
+                    responseBody += MsgBox.error(errorMsg);
                 }
                 worker.postMessage({
                     func: 'Server.recompile',
@@ -254,12 +254,12 @@ export const startExec = function(req: HTTPRequest, res: http.ServerResponse) {
     worker.on('error', function(error: Error) {
         res.statusCode = 500;
         const errorMsg: string = 'runner: jshp file error\n'
-            + error.stack;
+            + CleanMsg.runtimeError((error as Error).stack, req.url || '');
         Logs.error(req, res, errorMsg);
         if (Config.respondInChunks)
             res.write(errorMsg);
         else
-            responseBody += MsgBox.error(CleanMsg.runtimeError(errorMsg, req.url || ''));
+            responseBody += MsgBox.error(errorMsg);
     });
 
     // On worker exit, clear the timeout.
