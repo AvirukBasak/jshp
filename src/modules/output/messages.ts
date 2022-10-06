@@ -87,7 +87,7 @@ export const CleanMsg: NodeJS.Dict<any> = {
             .replace(regexG(finalLegacyTagClose), ' ?>     ')
             .replace(regexG(initTagOpen), '<script jshp>')
             .replace(regexG(finalTagClose), '</script>')
-            .replace(regexG('(async function() { echo(` '), '                           ');
+            .replace(regexG('const .* = async function() { echo(` '), '');
 
         const firstIndexOfReport: number = errorMsg.indexOf('\n') + 1;
         const nextIndexOfReport: number = errorMsg.indexOf('\n', firstIndexOfReport) + 1;
