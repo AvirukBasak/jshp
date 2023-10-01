@@ -1,11 +1,11 @@
 # JSHP
 JavaScript Hypertext Preprocessor - Inspired by PHP, in JavaScript.
 
+Visit [JSHP-App](https://github.com/AvirukBasak/JSHP-App) to view the demo project.
+
 ## HacktoberFest 2023
 ##### Last updated on October 2023
 Read the really tiny summary of how you can contribute at [CONTRIBUTING.md](CONTRIBUTING.md)
-
-Visit [JSHP-App](https://github.com/AvirukBasak/JSHP-App) to view the demo project.
 
 ## Index
 1. [Requirements](#requirements)
