@@ -5,7 +5,19 @@
 - Test your code manually, heavily, coz I've got no experience with auto-testing (you could help me out here).
 
 # Find a bug
-Yes it's a bug bounty, and you don't need to write any code, only test the framework.
+Issue [#7 - Find a bug](https://github.com/AvirukBasak/jshp/issues/7)
 
-In return, you create a PR and an Issue with the info on buggy code and you get a contribution count in `HacktoberFest 2023`.
-That's its sole purpose.
+Yes it's a bug bounty, and no you don't need to write any code, only test the framework.
+
+## Details
+Find a bug in what works. Finding a bug in a non-existent feature is invalid.
+
+This issue is basically asking you to find out a bug in this project by heavily testing it (manually, coz I've not yet added any automated tests).
+
+Once done, in the PR commits, you just need to create a `docs/<your_username>/bug_<title>.md` file with info on the bug. Also copy paste the details into a new issue (coz it really helps).
+
+If you modify or add code, it'll go through a stricter review.
+
+In return you get a `HacktoberFest 2023` contribution counted.
+
+Someone will have to fix the bug someday.
